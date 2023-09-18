@@ -1,9 +1,29 @@
-import greet from '@utils/mom';
-import fs from 'fs'
+import ConnectDatabase from '@config/DatabaseConfig';
+import express, { Request, Response } from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import logger from '@utils/logger';
+import CloudinaryConfiguration from '@config/CloudinaryConfig';
 
-fs.readFile('nodemon.json','utf-8',(err,data)=>{
-    if(err) return console.error(err.message);
-    return console.info(data)
-})
+const app = express();
+CloudinaryConfiguration();
+dotenv.config();
 
-greet()
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? [process.env.FRONTEND_URL as string]
+        : ['http://localhost:3000'],
+    credentials: true,
+    optionsSuccessStatus: 200,
+  }),
+);
+const port = process.env.PORT || 8000;
+app.use(express.json());
+
+ConnectDatabase().then(() => {
+  app.listen(port, () => {
+    logger.info(`Server is running http://localhost:${port}`);
+  });
+});
