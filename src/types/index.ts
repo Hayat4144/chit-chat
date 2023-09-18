@@ -11,11 +11,10 @@ declare global {
 }
 
 export interface payload extends JwtPayload {
-  roleId: string;
   email: string;
   name: string;
   id: string;
-  created_at: Date;
+  created_at?: Date;
 }
 
 export enum httpStatusCode {

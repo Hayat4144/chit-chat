@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import logger from '@utils/logger';
 import CloudinaryConfiguration from '@config/CloudinaryConfig';
+import authRouter from 'routes/authRoutes';
+import ErrorMiddleware from '@middlewares/ErrorMiddleware';
 
 const app = express();
 CloudinaryConfiguration();
@@ -21,6 +23,8 @@ app.use(
 );
 const port = process.env.PORT || 8000;
 app.use(express.json());
+app.use(authRouter);
+app.use(ErrorMiddleware);
 
 ConnectDatabase().then(() => {
   app.listen(port, () => {
