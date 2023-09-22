@@ -6,7 +6,7 @@ import UserModel from '@models/userModal';
 
 const Signup = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { firstName, lastName, email, password, provider } = await req.body;
+    const { firstName, lastName, email, password, provider } = req.body;
     const IsUser = await IsUserExist(email);
     if (IsUser) {
       return res
@@ -17,8 +17,8 @@ const Signup = asyncHandler(
       lastName,
       firstName,
       email,
-      password,
       provider,
+      password,
     });
     const saveUser = await user.save();
     return res.status(httpStatusCode.OK).json({

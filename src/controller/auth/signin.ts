@@ -13,14 +13,11 @@ const Signin = asyncHandler(
     if (!IsUser) {
       return res
         .status(httpStatusCode.BAD_REQUEST)
-        .json({ error: 'User does not exist.' });
-    }
-    if (!IsUser) {
-      return res
-        .status(httpStatusCode.BAD_REQUEST)
         .json({ error: `${email} does not exist.` });
     }
-
+    if (IsUser.provider !== 'credential') {
+      return res.status(400).json({ error: 'Invalid credentails' });
+    }
     const isValidPassword = await bcrypt.compare(
       password as string,
       IsUser.password as string,
@@ -31,7 +28,7 @@ const Signin = asyncHandler(
         .json({ error: 'Invalid credentials' });
     const payload: payload = {
       id: IsUser.id,
-      name: IsUser.firstName + IsUser.lastName,
+      name: `${IsUser.firstName} ${IsUser.lastName}`,
       email: IsUser.email,
     };
     const AccessToken = await getAccessToken(payload);

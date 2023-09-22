@@ -3,40 +3,34 @@ import logger from '@utils/logger';
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
 interface IUser extends Document {
-  username?: string;
   email: string;
-  password?: string;
   provider: string;
-  providerId?: string;
   firstName: string;
   lastName: string;
+  providerId?: string;
+  password?: string;
   profilePicture?: string;
 }
 
 const userSchema = new Schema<IUser>({
-  username: {
-    type: String,
-    unique: true,
-    trim: true,
-  },
   email: {
     type: String,
     unique: true,
     trim: true,
   },
-  password: String,
+  firstName: String,
+  lastName: String,
   provider: {
     type: String,
     required: true,
     enum: ['credential', 'google', 'github'],
   },
+  password: String,
   providerId: {
     type: String,
     unique: true,
     sparse: true, // Only required for social providers
   },
-  firstName: String,
-  lastName: String,
   profilePicture: String,
 });
 

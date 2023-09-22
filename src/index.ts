@@ -6,6 +6,7 @@ import logger from '@utils/logger';
 import CloudinaryConfiguration from '@config/CloudinaryConfig';
 import authRouter from 'routes/authRoutes';
 import ErrorMiddleware from '@middlewares/ErrorMiddleware';
+import userRouter from 'routes/userRoutes';
 
 const app = express();
 CloudinaryConfiguration();
@@ -24,6 +25,7 @@ app.use(
 const port = process.env.PORT || 8000;
 app.use(express.json());
 app.use(authRouter);
+app.use(userRouter);
 app.use(ErrorMiddleware);
 
 ConnectDatabase().then(() => {

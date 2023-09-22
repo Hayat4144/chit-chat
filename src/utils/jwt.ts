@@ -4,7 +4,7 @@ import { CustomError } from '@utils/CustomError';
 
 const options: SignOptions = {
   algorithm: 'HS256',
-  expiresIn: '24h',
+  expiresIn: '30d',
 };
 
 // const getPrivateKeySecret = (): Buffer => {
