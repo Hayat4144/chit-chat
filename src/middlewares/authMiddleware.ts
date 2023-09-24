@@ -10,7 +10,7 @@ const authMiddleware = asyncHandler(
       return res
         .status(httpStatusCode.UNAUTHORIZED)
         .json({ error: 'you are unauthorized.' });
-    const isValidatoken = await verifyToken(token, 10);
+    const isValidatoken = await verifyToken(token, 30);
     if (!isValidatoken)
       return res
         .status(httpStatusCode.INTERNAL_SERVER_ERROR)

@@ -9,4 +9,11 @@ const IsUserExist = async (email?: string, password = true) => {
   return user;
 };
 
-export { IsUserExist };
+class UserService {
+  async findUserById(id: string) {
+    const isUser = await UserModel.findById(id).select('-password');
+    return isUser;
+  }
+}
+
+export { IsUserExist, UserService };
