@@ -2,7 +2,7 @@ import { IChat, ChatModel } from '@models/chatModal';
 import { Types } from 'mongoose';
 
 class ChatService {
-  async createChat(
+  async createChatorGetChat(
     members: Types.ObjectId[],
     chatName: string,
     isGroupChat = false,

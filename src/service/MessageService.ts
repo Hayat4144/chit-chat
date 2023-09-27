@@ -8,8 +8,8 @@ class MessageService {
   constructor() {
     this.chat = new ChatService();
   }
-  async Newmessage(members: Types.ObjectId[], data: any): Promise<IMessage> {
-    const Chats = await this.chat.createChat(members, 'one-to-one');
+  async Newmessage(members: Types.ObjectId[], data: any,isGroupchat:boolean | undefined): Promise<IMessage> {
+    const Chats = await this.chat.createChatorGetChat(members, 'one-to-one',isGroupchat);
     let messageData;
     if (Array.isArray(Chats)) {
       messageData = {

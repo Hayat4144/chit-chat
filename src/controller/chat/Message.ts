@@ -7,7 +7,7 @@ import { NextFunction, Request, Response } from 'express';
 
 const Message = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { receiverId, payload } = req.body;
+    const { receiverId, payload, isGroupchat } = req.body;
     const userSerice = new UserService();
     const messageService = new MessageService();
     const isUser = await userSerice.findUserById(receiverId);
@@ -20,6 +20,7 @@ const Message = asyncHandler(
     const createnewMessage = await messageService.Newmessage(
       [receiverId, req.user_id],
       data,
+      isGroupchat,
     );
     return res.status(httpStatusCode.OK).json({ data: createnewMessage });
   },

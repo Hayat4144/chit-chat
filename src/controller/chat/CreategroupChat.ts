@@ -23,7 +23,7 @@ const CreategroupChat = asyncHandler(
     const isGroupchat = await groupChatService.isGroupChatExist(members, name);
     if (isGroupchat.length > 0)
       return next(new CustomError(`${name} group chat already exist.`, 400));
-    const createGroupChat = await chatService.createChat(
+    const createGroupChat = await chatService.createChatorGetChat(
       unique_members,
       name,
       true,

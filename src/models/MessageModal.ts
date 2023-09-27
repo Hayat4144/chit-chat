@@ -36,7 +36,6 @@ const PayloadSchema = new Schema<IPayload>({
 interface IMessage extends Document {
   payload: IPayload;
   sender: Types.ObjectId;
-  receiver: Types.ObjectId;
   chat: Types.ObjectId;
 }
 
@@ -44,7 +43,6 @@ const MessageSchema = new Schema<IMessage>(
   {
     payload: PayloadSchema,
     sender: { type: Schema.Types.ObjectId, ref: 'User' },
-    receiver: { type: Schema.Types.ObjectId, ref: 'User' },
     chat: { type: Schema.Types.ObjectId, ref: 'Chat' },
   },
   { timestamps: true },
