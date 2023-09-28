@@ -15,12 +15,7 @@ export default async function AsideNavbar({ className }: SidebarProps) {
   const session = await getServerSession(authOptions);
   return (
     <Fragment>
-      <aside
-        className={cn(
-          'md:w-[35%] md:fixed md:top-0 left-0 lg:w-[30%] md:border-r py-5',
-          className,
-        )}
-      >
+      <aside className={cn('md:border-r py-5', className)}>
         <div className="sticky top-0 left-0">
           <div className="header flex justify-between space-x-2 items-center px-2 pb-2">
             <div className="user-profile flex items-center space-x-4">
