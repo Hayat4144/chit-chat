@@ -2,6 +2,7 @@ import AddMemebersToGroupChat from '@controller/chat/Addmembers';
 import CreategroupChat from '@controller/chat/CreategroupChat';
 import LastMessage from '@controller/chat/LastMessage';
 import Message from '@controller/chat/Message';
+import PrivateChat from '@controller/chat/PrivateChat';
 import ReadMessage from '@controller/chat/ReadMessage';
 import RemoveMemebersToGroupChat from '@controller/chat/Removemebers';
 import UpdateGroupName from '@controller/chat/UpdateGroupName';
@@ -17,6 +18,8 @@ chatRoutes.post('/api/v1/chat/update/name',authMiddleware,UpdateGroupName)
 chatRoutes.post('/api/v1/chat/add/memebers',authMiddleware,AddMemebersToGroupChat)
 chatRoutes.post('/api/v1/chat/remove/memebers',authMiddleware,RemoveMemebersToGroupChat)
 chatRoutes.get('/api/v1/chat/lastmessage/:receiverId',authMiddleware,LastMessage)
-chatRoutes.get('/api/v1/chat/read/messages/:receiverId',authMiddleware,ReadMessage);
+chatRoutes.get('/api/v1/chat/read/messages/:ChatId',authMiddleware,ReadMessage);
+chatRoutes.get('/api/v1/chat/:ChatId',authMiddleware,PrivateChat);
+
 
 export default chatRoutes;

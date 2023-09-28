@@ -24,11 +24,14 @@ interface IPayload {
   };
 }
 
-interface lastMessage {
+export interface Message {
   _id: string;
   payload: IPayload;
+  sender: string;
   createdAt: Date;
   updatedAt: Date;
+  chat: string;
+  receiver?: string;
 }
 
 export interface IChat {
@@ -40,5 +43,5 @@ export interface IChat {
   updatedAt: Date;
   admin?: string;
   groupShortcut?: string;
-  lastMessage?: lastMessage | undefined;
+  lastMessage?: Message | undefined;
 }

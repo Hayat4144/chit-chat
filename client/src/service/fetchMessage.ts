@@ -1,7 +1,8 @@
+// /api/v1/chat/read/messages/:ChatId
 import { BASE_URL } from '@/lib/constant';
 
-const particularChat = async (token: string | undefined, chatId: string) => {
-  const url = `${BASE_URL}/api/v1/chat/${chatId}`;
+const fetchMesages = async (token: string | undefined, chatId: any) => {
+  const url = `${BASE_URL}/api/v1/chat/read/messages/${chatId}`;
   const res = await fetch(url, {
     method: 'GET',
     headers: {
@@ -16,4 +17,4 @@ const particularChat = async (token: string | undefined, chatId: string) => {
   return { data };
 };
 
-export default particularChat;
+export default fetchMesages;

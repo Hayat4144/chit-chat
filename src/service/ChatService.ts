@@ -78,7 +78,10 @@ class ChatService {
   }
 
   async isChatExist(chatId: Types.ObjectId) {
-    const isChat = await ChatModel.findById(chatId);
+    const isChat = await ChatModel.findById(chatId).populate(
+      'members',
+      '-password',
+    );
     return isChat;
   }
 }

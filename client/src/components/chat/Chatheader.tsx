@@ -1,9 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import getNameshortcut from '@/lib/NameShortcut';
-import { useSession } from 'next-auth/react';
 import {
   Popover,
   PopoverContent,
@@ -11,25 +9,30 @@ import {
 } from '@/components/ui/popover';
 import { Icons } from '../Icons';
 import { Button } from '../ui/button';
+import { IChat } from '@/types';
 
-export default function Chatheader() {
+interface ChatHeaderProps {
+  chat: IChat[];
+}
+
+export default function Chatheader({ chat }: ChatHeaderProps) {
   const { id } = useParams();
-  const [isFetched, toggleFetch] = useState<boolean>(false);
-  const { data, status } = useSession();
-  const result = useQuery(['particularChat'], () => {}, { enabled: isFetched });
-
   return (
     <Fragment>
       <header className="border-b sticky top-0 z-10 py-3">
         <div className="px-2 md:px-5 flex items-center pb-1 justify-between">
           <div className="flex items-center space-x-3">
             <Avatar>
-              <AvatarImage src={'hello'} />
-              <AvatarFallback>{getNameshortcut('Hayat ilyas')}</AvatarFallback>
+              <AvatarImage src={chat[0].members[0].profileImage} />
+              <AvatarFallback>
+                {getNameshortcut(
+                  `${chat[0].members[0].firstName} ${chat[0].members[0].lastName}`,
+                )}
+              </AvatarFallback>
             </Avatar>
             <div>
               <p className="text-2xl font-medium leading-none capitalize">
-                Hayat ilyas
+                {`${chat[0].members[0].firstName} ${chat[0].members[0].lastName} `}
               </p>
             </div>
           </div>
@@ -44,9 +47,5 @@ export default function Chatheader() {
         </div>
       </header>
     </Fragment>
-    // <div className="flex items-center px-2 pb-2 py-3 border-b w-full fixed top-0 z-50 bg-background">
-    //   <div className="user-profile flex items-center space-x-4">
-    //         //   </div>
-    //       // </div>
   );
 }

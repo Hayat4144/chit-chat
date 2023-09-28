@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { IChat } from '@/types';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 
 interface ChatItemProps {
   data: IChat;
@@ -11,7 +12,8 @@ export default function ChatItem({ data }: ChatItemProps) {
   const { id } = useParams();
   return (
     <Fragment>
-      <div
+      <Link
+        href={`/chat/${data._id}`}
         className={`flex items-center space-x-3 hover:bg-accent
       rounded-md py-1 cursor-pointer ${data._id === id ? 'bg-accent' : ''}`}
       >
@@ -33,7 +35,7 @@ export default function ChatItem({ data }: ChatItemProps) {
             </p>
           ) : null}
         </div>
-      </div>
+      </Link>
     </Fragment>
   );
 }
