@@ -1,4 +1,5 @@
 import { JwtPayload } from 'jsonwebtoken';
+import { Socket } from 'socket.io';
 // Define custom properties for Request object
 declare global {
   namespace Express {
@@ -8,6 +9,24 @@ declare global {
       name: string;
     }
   }
+}
+
+declare module 'socket.io' {
+  interface Socket {
+    user: JwtPayload;
+  }
+}
+
+export enum ChatEvent {
+  CONNECTION = 'connection',
+  CONNECTED = 'connected',
+  DISCONNECTED = 'disconnect',
+  MESSAGESEND = 'receive_message',
+  TYPING = 'typing',
+  JOINCHAT = 'joinChat',
+  USERTYPING = 'userTyping',
+  USERSTOPTYPING = 'userStopTyping',
+  STOPTYPING = 'stopTyping',
 }
 
 export interface payload extends JwtPayload {

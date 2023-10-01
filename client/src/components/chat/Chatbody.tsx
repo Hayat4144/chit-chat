@@ -33,6 +33,7 @@ export default function Chatbody({ messages, isLoading }: ChatbodyProps) {
 
     if (lastMessageRef.current) {
       observer.observe(lastMessageRef.current);
+      lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
     }
 
     return () => {
@@ -40,13 +41,7 @@ export default function Chatbody({ messages, isLoading }: ChatbodyProps) {
         observer.unobserve(lastMessageRef.current);
       }
     };
-  }, []);
-
-  useEffect(() => {
-    if (lastMessageRef.current) {
-      lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, []);
+  }, [messages]);
 
   const lastMessageViewHandle = () => {
     if (lastMessageRef.current) {

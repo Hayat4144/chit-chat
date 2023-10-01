@@ -1,6 +1,10 @@
 import { Types } from 'mongoose';
 import ChatService from './ChatService';
 import { MessageModel, IMessage } from '@models/MessageModal';
+import { Request } from 'express';
+import { emitSocketEvent } from 'Sockets';
+import { ChatEvent } from '@customtype/index';
+import { IChat } from '@models/chatModal';
 
 class MessageService {
   private chat: ChatService;
@@ -8,8 +12,17 @@ class MessageService {
   constructor() {
     this.chat = new ChatService();
   }
-  async Newmessage(members: Types.ObjectId[], data: any,isGroupchat:boolean | undefined): Promise<IMessage> {
-    const Chats = await this.chat.createChatorGetChat(members, 'one-to-one',isGroupchat);
+  async Newmessage(
+    members: Types.ObjectId[],
+    data: any,
+    isGroupchat: boolean | undefined,
+    req: Request,
+  ): Promise<IMessage> {
+    const Chats = await this.chat.createChatorGetChat(
+      members,
+      'one-to-one',
+      isGroupchat,
+    );
     let messageData;
     if (Array.isArray(Chats)) {
       messageData = {
@@ -27,8 +40,33 @@ class MessageService {
       { lastMessage: saveMessage.id },
       saveMessage.chat,
     );
+    const sendSocketMessage = (room: string) => {
+      emitSocketEvent(req, room, ChatEvent.MESSAGESEND, saveMessage);
+    };
+    if (Array.isArray(Chats)) {
+      if (Chats[0].isGroupchat) {
+        sendSocketMessage(Chats[0].id);
+      } else {
+        const receiverId = await this.privateRoom(Chats[0], req.user_id);
+        sendSocketMessage(receiverId);
+      }
+    } else {
+      if (Chats.isGroupchat) {
+        sendSocketMessage(Chats.id);
+      } else {
+        const receiverId = await this.privateRoom(Chats, req.user_id);
+        sendSocketMessage(receiverId);
+      }
+    }
     return saveMessage;
   }
+
+  private privateRoom(chat: IChat, senderId: string) {
+    return chat.members
+      .find((memberId) => memberId.toString() !== senderId)
+      ?.toString() as string;
+  }
+
   async createMessage(data: any): Promise<IMessage> {
     const message = new MessageModel({ ...data });
     const saveMessage = await message.save();

@@ -7,6 +7,15 @@ export interface chatuser {
   profileShortcutName?: string;
 }
 
+export enum ChatEnum {
+  RECEIVEDMESSAGE = 'receive_message',
+  TYPING = 'typing',
+  USERTYPING = 'userTyping',
+  JOINCHAT = 'joinChat',
+  USERSTOPTYPING = 'userStopTyping',
+  STOPTYPING = 'stopTyping',
+}
+
 enum MessageType {
   TEXT = 'text',
   IMAGE = 'image',

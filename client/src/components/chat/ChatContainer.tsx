@@ -5,13 +5,14 @@ import Chatbody from './Chatbody';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Icons } from '../Icons';
-import { IChat, Message } from '@/types';
+import { ChatEnum, IChat, Message } from '@/types';
 import { useParams } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import fetchMesages from '@/service/fetchMessage';
 import { toast } from '../ui/use-toast';
 import sendMessage from '@/service/sendMessage';
+import { useSocket } from '@/context/SocketProvider';
 
 interface ChatContainerProps {
   chat: IChat[];
@@ -23,13 +24,45 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
   const session = useSession();
   const [messages, setmessages] = useState<Message[]>([]);
   const [inputValue, setinputValue] = useState<string>('');
+  const [isTyping, setisTyping] = useState<boolean>(false);
 
+  const { socket, isConnected } = useSocket();
   const queryClient = useQueryClient();
 
   const refetchQuery = () => {
     queryClient.invalidateQueries(['chats']);
     queryClient.refetchQueries(['chats']);
   };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.emit(ChatEnum.JOINCHAT, id);
+
+    socket.on(ChatEnum.RECEIVEDMESSAGE, (message) => {
+      setmessages((prevState) => [...prevState, message]);
+    });
+
+    socket.on(ChatEnum.USERTYPING, ({ user }) => {
+      if (user !== session.data.user.id) {
+        setisTyping(true);
+        console.log(`user is typing ${user}`);
+      }
+    });
+
+    socket.on(ChatEnum.USERSTOPTYPING, ({ user }) => {
+      if (user !== session.data.user.id) {
+        setisTyping(false);
+        console.log(`user is stop typing ${user}`);
+      }
+    });
+
+    return () => {
+      socket.off(ChatEnum.RECEIVEDMESSAGE);
+      socket.off(ChatEnum.USERTYPING);
+      socket.off(ChatEnum.JOINCHAT);
+    };
+  }, [socket]);
 
   const result = useQuery(
     ['message'],
@@ -63,6 +96,10 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    socket.emit(ChatEnum.STOPTYPING, {
+      chatId: id as string,
+      userId: session.data.user.id,
+    });
     const { data, error } = await sendMessage(
       session.data.user.token,
       chat[0].members[0]._id,
@@ -76,20 +113,39 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
     refetchQuery();
   };
 
+  const keydownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    socket.emit(ChatEnum.TYPING, {
+      chatId: id as string,
+      userId: session.data.user.id,
+    });
+  };
+
+  const keyUpHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      socket.emit(ChatEnum.STOPTYPING, {
+        chatId: id as string,
+        userId: session.data.user.id,
+      });
+    }
+  };
+
   return (
     <Fragment>
-      <Chatheader chat={chat} />
+      <Chatheader chat={chat} isTyping={isTyping} />
       <Chatbody isLoading={result.isLoading} messages={messages} />
       <footer className="bg-background border-t sticky bottom-0 z-30 flex items-center h-20 py-3 px-2">
         <form onSubmit={submitHandler} className="flex-1">
           <div className="flex items-center space-x-2">
             <Input
+              disabled={!isConnected}
               placeholder="Type your message..."
               type="text"
+              onKeyDown={keydownHandler}
+              onKeyUp={keyUpHandler}
               value={inputValue}
               onChange={onChangeHandler}
             />
-            <Button>
+            <Button disabled={!isConnected}>
               <Icons.send size={17} />
             </Button>
           </div>

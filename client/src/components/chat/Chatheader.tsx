@@ -13,9 +13,10 @@ import { IChat } from '@/types';
 
 interface ChatHeaderProps {
   chat: IChat[];
+  isTyping: boolean;
 }
 
-export default function Chatheader({ chat }: ChatHeaderProps) {
+export default function Chatheader({ chat, isTyping }: ChatHeaderProps) {
   const { id } = useParams();
   return (
     <Fragment>
@@ -31,8 +32,17 @@ export default function Chatheader({ chat }: ChatHeaderProps) {
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-2xl font-medium leading-none capitalize">
+              <p className="text-xl font-medium leading-none capitalize">
                 {`${chat[0].members[0].firstName} ${chat[0].members[0].lastName} `}
+              </p>
+              <p>
+                {isTyping ? (
+                  <>
+                    typing <span className="animate-ping">...</span>
+                  </>
+                ) : (
+                  'offline'
+                )}
               </p>
             </div>
           </div>

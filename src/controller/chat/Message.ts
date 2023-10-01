@@ -21,6 +21,7 @@ const Message = asyncHandler(
       [receiverId, req.user_id],
       data,
       isGroupchat,
+      req,
     );
     return res.status(httpStatusCode.OK).json({ data: createnewMessage });
   },
