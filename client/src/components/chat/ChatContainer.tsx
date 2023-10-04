@@ -13,6 +13,7 @@ import fetchMesages from '@/service/fetchMessage';
 import { toast } from '../ui/use-toast';
 import sendMessage from '@/service/sendMessage';
 import { useSocket } from '@/context/SocketProvider';
+import CreateGroupMessage from '@/service/CreateGroupMessage';
 
 interface ChatContainerProps {
   chat: IChat[];
@@ -100,6 +101,19 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
       chatId: id as string,
       userId: session.data.user.id,
     });
+    if (chat[0].isGroupchat) {
+      const { error } = await CreateGroupMessage(
+        session.data.user.token,
+        id as string,
+        inputValue,
+      );
+      if (error) {
+        return toast({ variant: 'destructive', title: error });
+      }
+      setinputValue('');
+      refetchQuery();
+      return;
+    }
     const { data, error } = await sendMessage(
       session.data.user.token,
       chat[0].members[0]._id,

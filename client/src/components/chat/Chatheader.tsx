@@ -17,23 +17,33 @@ interface ChatHeaderProps {
 }
 
 export default function Chatheader({ chat, isTyping }: ChatHeaderProps) {
-  const { id } = useParams();
+  let profileImage: string;
+  let nameshortcut: string;
+  let name: string;
+  if (chat[0].isGroupchat) {
+    nameshortcut = getNameshortcut(`${chat[0].name}`);
+    profileImage = (chat[0] as any).profileImage;
+    name = chat[0].name;
+  } else {
+    nameshortcut = getNameshortcut(
+      `${chat[0].members[0].firstName} ${chat[0].members[0].firstName}`,
+    );
+    profileImage = chat[0].members[0].profileImage;
+    name = `${chat[0].members[0].firstName} ${chat[0].members[0].lastName} `;
+  }
+
   return (
     <Fragment>
       <header className="border-b sticky top-0 z-10 py-3">
         <div className="px-2 md:px-5 flex items-center pb-1 justify-between">
           <div className="flex items-center space-x-3">
             <Avatar>
-              <AvatarImage src={chat[0].members[0].profileImage} />
-              <AvatarFallback>
-                {getNameshortcut(
-                  `${chat[0].members[0].firstName} ${chat[0].members[0].lastName}`,
-                )}
-              </AvatarFallback>
+              <AvatarImage src={profileImage} />
+              <AvatarFallback>{nameshortcut}</AvatarFallback>
             </Avatar>
             <div>
               <p className="text-xl font-medium leading-none capitalize">
-                {`${chat[0].members[0].firstName} ${chat[0].members[0].lastName} `}
+                {name}
               </p>
               <p>
                 {isTyping ? (
