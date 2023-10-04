@@ -12,7 +12,7 @@ class MessageService {
   constructor() {
     this.chat = new ChatService();
   }
-  async Newmessage(
+  async PrivateMessage(
     members: Types.ObjectId[],
     data: any,
     isGroupchat: boolean | undefined,
@@ -44,20 +44,29 @@ class MessageService {
       emitSocketEvent(req, room, ChatEvent.MESSAGESEND, saveMessage);
     };
     if (Array.isArray(Chats)) {
-      if (Chats[0].isGroupchat) {
-        sendSocketMessage(Chats[0].id);
-      } else {
-        const receiverId = await this.privateRoom(Chats[0], req.user_id);
-        sendSocketMessage(receiverId);
-      }
+      const receiverId = this.privateRoom(Chats[0], req.user_id);
+      sendSocketMessage(receiverId);
     } else {
-      if (Chats.isGroupchat) {
-        sendSocketMessage(Chats.id);
-      } else {
-        const receiverId = await this.privateRoom(Chats, req.user_id);
-        sendSocketMessage(receiverId);
-      }
+      const receiverId = this.privateRoom(Chats, req.user_id);
+      sendSocketMessage(receiverId);
     }
+    return saveMessage;
+  }
+
+  async GroupMessage(chatId: Types.ObjectId, data: any, req: Request) {
+    let messageData = {
+      ...data,
+      chat: chatId,
+    };
+    const saveMessage = await this.createMessage(messageData);
+    const updatelastMessage = await this.chat.updateChat(
+      { lastMessage: saveMessage.id },
+      saveMessage.chat,
+    );
+    const sendSocketMessage = (room: string) => {
+      emitSocketEvent(req, room, ChatEvent.MESSAGESEND, saveMessage);
+    };
+    sendSocketMessage(chatId.toString());
     return saveMessage;
   }
 

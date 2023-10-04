@@ -15,9 +15,8 @@ const Message = asyncHandler(
     const data = {
       payload,
       sender: req.user_id,
-      receiver: receiverId,
     };
-    const createnewMessage = await messageService.Newmessage(
+    const createnewMessage = await messageService.PrivateMessage(
       [receiverId, req.user_id],
       data,
       isGroupchat,
