@@ -54,3 +54,12 @@ export interface IChat {
   groupShortcut?: string;
   lastMessage?: Message | undefined;
 }
+
+export interface IUser {
+  _id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  profilePicture?: string;
+  profileShortcutName?: string;
+}

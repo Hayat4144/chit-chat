@@ -10,7 +10,7 @@ export default async function Home() {
   }
   return (
     <main className="flex">
-      <AsideNavbar className="h-screen fixed w-full md:border-r md:w-[35%] lg:w-[30%] hidden md:block" />
+      <AsideNavbar className="h-screen fixed w-full md:border-r md:w-[35%] lg:w-[30%]" />
       <section className="hidden md:flex md:flex-col md:flex-grow h-full md:ml-[35%] lg:ml-[30%]">
         <h1 className="text-7xl font-medium">This is chat box.</h1>
       </section>
