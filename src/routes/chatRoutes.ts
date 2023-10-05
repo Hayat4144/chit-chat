@@ -1,5 +1,6 @@
 import AddMemebersToGroupChat from '@controller/chat/Addmembers';
 import CreateGroupMessage from '@controller/chat/CreateGroupMessage';
+import CreateorGetChat from '@controller/chat/CreateOrGetChat';
 import CreategroupChat from '@controller/chat/CreategroupChat';
 import LastMessage from '@controller/chat/LastMessage';
 import Message from '@controller/chat/Message';
@@ -17,7 +18,11 @@ const chatRoutes = express.Router();
 chatRoutes.post('/api/v1/chat/create/message', authMiddleware, Message);
 chatRoutes.post('/api/v1/create/group/chat', authMiddleware, CreategroupChat);
 chatRoutes.get('/api/v1/recent/chat/members', authMiddleware, RecentChatuser);
-
+chatRoutes.get(
+  '/api/v1/createorget/chat/:userId',
+  authMiddleware,
+  CreateorGetChat,
+);
 chatRoutes.get('/api/v1/chats/', authMiddleware, Chats);
 chatRoutes.post('/api/v1/chat/update/name', authMiddleware, UpdateGroupName);
 chatRoutes.post(
@@ -42,6 +47,10 @@ chatRoutes.get(
 );
 chatRoutes.get('/api/v1/chat/:ChatId', authMiddleware, PrivateChat);
 chatRoutes.get('/api/v1/chat/search/user', authMiddleware, SearchUser);
-chatRoutes.post('/api/v1/chat/create/group/message',authMiddleware,CreateGroupMessage)
+chatRoutes.post(
+  '/api/v1/chat/create/group/message',
+  authMiddleware,
+  CreateGroupMessage,
+);
 
 export default chatRoutes;
