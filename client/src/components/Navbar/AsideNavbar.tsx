@@ -16,7 +16,7 @@ export default async function AsideNavbar({ className }: SidebarProps) {
   return (
     <Fragment>
       <aside className={cn('md:border-r py-5', className)}>
-        <div className="sticky top-0 left-0">
+        <div className="sticky top-0 left-0 w-full z-50">
           <div className="header flex justify-between space-x-2 items-center px-2 pb-2">
             <div className="user-profile flex items-center space-x-4">
               <Avatar>
@@ -37,12 +37,11 @@ export default async function AsideNavbar({ className }: SidebarProps) {
             <Menu />
           </div>
           <Separator orientation="horizontal" />
-          <div className="px-2 py-2 ">
+          <div className="px-2 py-2 w-full ">
             <SearchBar />
           </div>
         </div>
-
-        <ScrollArea className="h-full px-2">
+        <ScrollArea className="h-full px-2 z-0">
           <Chats />
         </ScrollArea>
       </aside>

@@ -14,6 +14,7 @@ import { toast } from '../ui/use-toast';
 import sendMessage from '@/service/sendMessage';
 import { useSocket } from '@/context/SocketProvider';
 import CreateGroupMessage from '@/service/CreateGroupMessage';
+import EmojiPicker from './EmojiPicker';
 
 interface ChatContainerProps {
   chat: IChat[];
@@ -143,6 +144,9 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
     }
   };
 
+  const addEmoji = (value: any) => {
+    setinputValue((prevState) => prevState + value.native);
+  };
   return (
     <Fragment>
       <Chatheader chat={chat} isTyping={isTyping} />
@@ -150,6 +154,7 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
       <footer className="bg-background border-t sticky bottom-0 z-30 flex items-center h-20 py-3 px-2">
         <form onSubmit={submitHandler} className="flex-1">
           <div className="flex items-center space-x-2">
+            <EmojiPicker addEmoji={addEmoji} />
             <Input
               disabled={!isConnected}
               placeholder="Type your message..."
