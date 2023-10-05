@@ -27,14 +27,14 @@ export default async function page({
     );
     if (error) throw error;
     formatedData = formatedChat([data], session);
-    redirect(`/chat/${formatedData[0]._id}`)
+    redirect(`/chat/${formatedData[0]._id}`);
   } else {
     const { data, error } = await particularChat(session.user.token, params.id);
     if (error) throw error;
     formatedData = formatedChat([data], session);
   }
   return (
-    <main className="flex flex-col flex-grow h-screen md:ml-[35%] lg:ml-[30%] ">
+    <main className="flex flex-col flex-grow h-screen md:ml-[35%] lg:ml-[30%] relative ">
       <ChatContainer chat={formatedData} />
     </main>
   );

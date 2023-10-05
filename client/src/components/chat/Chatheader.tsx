@@ -1,15 +1,8 @@
-import { useParams } from 'next/navigation';
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import getNameshortcut from '@/lib/NameShortcut';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Icons } from '../Icons';
-import { Button } from '../ui/button';
 import { IChat } from '@/types';
+import ChatInfo from './ChatInfo';
 
 interface ChatHeaderProps {
   chat: IChat[];
@@ -17,6 +10,7 @@ interface ChatHeaderProps {
 }
 
 export default function Chatheader({ chat, isTyping }: ChatHeaderProps) {
+  const [open, setopen] = useState<boolean>(false);
   let profileImage: string;
   let nameshortcut: string;
   let name: string;
@@ -34,9 +28,21 @@ export default function Chatheader({ chat, isTyping }: ChatHeaderProps) {
 
   return (
     <Fragment>
+      {open ? (
+        <ChatInfo
+          setopen={setopen}
+          chat={chat[0]}
+          profileImage={profileImage}
+          name={name}
+          nameshortcut={nameshortcut}
+        />
+      ) : null}
       <header className="border-b sticky top-0 z-10 py-3">
         <div className="px-2 md:px-5 flex items-center pb-1 justify-between">
-          <div className="flex items-center space-x-3">
+          <div
+            className="flex items-center space-x-3"
+            onClick={() => setopen(true)}
+          >
             <Avatar>
               <AvatarImage src={profileImage} />
               <AvatarFallback>{nameshortcut}</AvatarFallback>
@@ -56,14 +62,6 @@ export default function Chatheader({ chat, isTyping }: ChatHeaderProps) {
               </p>
             </div>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button className="rounded-full" variant="ghost" size="icon">
-                <Icons.verticalThreeDots size={17} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end">hello</PopoverContent>
-          </Popover>
         </div>
       </header>
     </Fragment>

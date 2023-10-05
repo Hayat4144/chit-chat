@@ -26,7 +26,13 @@ const formatedChat = (data: any, session: any): IChat[] => {
       };
     }
     const shortcut = getNameshortcut(item.name);
-    return { ...item, groupShortcut: shortcut };
+    const updatedMembers = item.members.map((member) => {
+      const name = `${member.firstName} ${member.lastName}`;
+      const NameShortcut = getNameshortcut(name);
+      return { ...member, profileShortcutName: NameShortcut };
+    });
+
+    return { ...item, groupShortcut: shortcut, members: updatedMembers };
   });
 };
 
