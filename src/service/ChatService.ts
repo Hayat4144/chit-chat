@@ -64,13 +64,15 @@ class ChatService {
     return memebers;
   }
 
-  async recentChatUser(userId:Types.ObjectId){
+  async recentChatUser(userId: Types.ObjectId) {
     const recentChatMembers = await ChatModel.find({
-      members:{
-        $in:[userId]
+      members: {
+        $in: [userId],
       },
-    }).populate({ path: 'members', select: '-password -provider' })
-    .select('-createdAt -updatedAt -name -lastMessage')
+      isGroupchat: false,
+    })
+      .populate({ path: 'members', select: '-password -provider' })
+      .select('-createdAt -updatedAt -name -lastMessage');
     return recentChatMembers;
   }
 

@@ -11,7 +11,8 @@ import { IChat } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Separator } from '../ui/separator';
 import { useSession } from 'next-auth/react';
-import RemoveParticipant from './RemoveParticipant';
+import RemoveParticipant from '@/components/chat/GroupChat/RemoveParticipant';
+import AddParticipants from '@/components/chat/GroupChat/AddParticipants';
 interface ChatInfoProps {
   chat: IChat;
   name: string;
@@ -59,15 +60,7 @@ export default function ChatInfo({
         <Separator orientation="horizontal" className="w-full" />
         <div className="participants px-2 md:px-5 my-2">
           <h1>{chat.members.length} participants</h1>
-          <div className="flex items-center space-x-2 cursor-pointer">
-            <div
-              className="px-2 rounded-full h-12 w-12 bg-accent
-              flex flex-col items-center py-2 my-4"
-            >
-              <Icons.user size={28} />
-            </div>
-            <h1 className="text-xl">Add participants</h1>
-          </div>
+          <AddParticipants chat={chat} />
           {chat.isGroupchat
             ? chat.members.map((member) => (
                 <div
@@ -88,15 +81,17 @@ export default function ChatInfo({
                       </p>
                     </div>
                   </div>
-                  {member._id !== session.data.user.id ? (
-                    <Fragment>
+                  <div className="flex space-x-2 item-center">
+                    {chat.admin === session.data.user.id &&
+                    session.data.user.id !== member._id ? (
                       <RemoveParticipant id={member._id} />
-                    </Fragment>
-                  ) : (
-                    <p className="px-1 py-1 bg-accent text-[12px] rounded-md">
-                      Group Admin
-                    </p>
-                  )}
+                    ) : null}
+                    {chat.admin === member._id ? (
+                      <p className="px-1 py-1 bg-accent text-[12px] rounded-md">
+                        Group Admin
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
               ))
             : null}
