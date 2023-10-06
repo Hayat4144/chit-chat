@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Icons } from '../Icons';
 import { Button } from '../ui/button';
 import {
@@ -13,6 +13,8 @@ import { Separator } from '../ui/separator';
 import { useSession } from 'next-auth/react';
 import RemoveParticipant from '@/components/chat/GroupChat/RemoveParticipant';
 import AddParticipants from '@/components/chat/GroupChat/AddParticipants';
+import UpdateGroupName from './GroupChat/UpdateGroupName';
+
 interface ChatInfoProps {
   chat: IChat;
   name: string;
@@ -28,6 +30,7 @@ export default function ChatInfo({
   profileImage,
 }: ChatInfoProps) {
   const session = useSession();
+  const [isInputopen, setisInputopen] = useState<boolean>(false);
   return (
     <div className="absolute w-full z-50 bg-background h-full flex flex-col">
       <div className="h-[69px] sticky w-full top-0 z-30 border-b flex items-center space-x-2 md:space-x-5 px-2">
@@ -55,7 +58,14 @@ export default function ChatInfo({
             <AvatarImage src={profileImage} />
             <AvatarFallback>{nameshortcut}</AvatarFallback>
           </Avatar>
-          <h3 className="text-xl font-medium">{name}</h3>
+          <div className="flex flex-col space-y-1">
+            <UpdateGroupName name={name} chat={chat} />
+            {chat.isGroupchat ? (
+              <p className="text-muted-foreground">
+                Group . {chat.members.length} participants
+              </p>
+            ) : null}
+          </div>
         </div>
         <Separator orientation="horizontal" className="w-full" />
         <div className="participants px-2 md:px-5 my-2">
