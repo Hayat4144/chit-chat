@@ -3,14 +3,30 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import getNameshortcut from '@/lib/NameShortcut';
 import { IChat } from '@/types';
 import ChatInfo from './ChatInfo';
+import moment from 'moment';
+import formatLastSeen from '@/lib/formatLastSeen';
+
+interface userStatus {
+  _id: string;
+  user: string;
+  lastSeen: Date;
+  online: boolean;
+  relativeTime?: string;
+}
 
 interface ChatHeaderProps {
   chat: IChat[];
   isTyping: boolean;
+  status: userStatus | null;
 }
 
-export default function Chatheader({ chat, isTyping }: ChatHeaderProps) {
+export default function Chatheader({
+  chat,
+  isTyping,
+  status,
+}: ChatHeaderProps) {
   const [open, setopen] = useState<boolean>(false);
+  let userStatus = status;
   let profileImage: string;
   let nameshortcut: string;
   let name: string;
@@ -24,6 +40,10 @@ export default function Chatheader({ chat, isTyping }: ChatHeaderProps) {
     );
     profileImage = chat[0].members[0].profileImage;
     name = `${chat[0].members[0].firstName} ${chat[0].members[0].lastName} `;
+  }
+  if (userStatus) {
+    userStatus.lastSeen = moment(userStatus.lastSeen).toDate();
+    userStatus.relativeTime = formatLastSeen(userStatus.lastSeen);
   }
 
   return (
@@ -51,14 +71,14 @@ export default function Chatheader({ chat, isTyping }: ChatHeaderProps) {
               <p className="text-xl font-medium leading-none capitalize">
                 {name}
               </p>
-              <p>
-                {isTyping ? (
-                  <>
-                    typing <span className="animate-ping">...</span>
-                  </>
-                ) : (
-                  'offline'
-                )}
+              <p className='text-muted-foreground text-sm'>
+                {isTyping
+                  ? 'typing...'
+                  : userStatus
+                  ? userStatus.online
+                    ? 'online'
+                    : userStatus.relativeTime
+                  : ''}
               </p>
             </div>
           </div>

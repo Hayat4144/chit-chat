@@ -14,6 +14,8 @@ export enum ChatEnum {
   JOINCHAT = 'joinChat',
   USERSTOPTYPING = 'userStopTyping',
   STOPTYPING = 'stopTyping',
+  LEAVECHAT = 'leavechat',
+  USERUPDATESTATUS='userStatusUpdate'
 }
 
 enum MessageType {

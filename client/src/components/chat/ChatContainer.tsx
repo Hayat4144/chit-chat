@@ -20,6 +20,13 @@ interface ChatContainerProps {
   chat: IChat[];
 }
 
+interface userStatus {
+  _id: string;
+  user: string;
+  lastSeen: Date;
+  online: boolean;
+}
+
 export default function ChatContainer({ chat }: ChatContainerProps) {
   const { id } = useParams();
   const [isFetched, toggleFetch] = useState<boolean>(false);
@@ -27,6 +34,7 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
   const [messages, setmessages] = useState<Message[]>([]);
   const [inputValue, setinputValue] = useState<string>('');
   const [isTyping, setisTyping] = useState<boolean>(false);
+  const [status, setstatus] = useState<userStatus | null>(null);
 
   const { socket, isConnected } = useSocket();
   const queryClient = useQueryClient();
@@ -40,6 +48,11 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
     if (!socket) return;
 
     socket.emit(ChatEnum.JOINCHAT, id);
+
+    socket.on(ChatEnum.USERUPDATESTATUS, (status) => {
+      console.log(status)
+      setstatus(status);
+    });
 
     socket.on(ChatEnum.RECEIVEDMESSAGE, (message) => {
       setmessages((prevState) => [...prevState, message]);
@@ -62,6 +75,8 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
     return () => {
       socket.off(ChatEnum.RECEIVEDMESSAGE);
       socket.off(ChatEnum.USERTYPING);
+      socket.emit(ChatEnum.LEAVECHAT, id);
+      socket.off(ChatEnum.USERUPDATESTATUS);
       socket.off(ChatEnum.JOINCHAT);
     };
   }, [socket]);
@@ -94,6 +109,12 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setinputValue(e.target.value);
+    if(e.target.value.length < 1){
+      socket.emit(ChatEnum.STOPTYPING, {
+      chatId: id as string,
+      userId: session.data.user.id,
+    });
+    }
   };
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -149,7 +170,7 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
   };
   return (
     <Fragment>
-      <Chatheader chat={chat} isTyping={isTyping} />
+      <Chatheader chat={chat} isTyping={isTyping} status={status} />
       <Chatbody isLoading={result.isLoading} messages={messages} />
       <footer className="bg-background border-t sticky bottom-0 z-30 flex items-center h-20 py-3 px-2">
         <form onSubmit={submitHandler} className="flex-1">

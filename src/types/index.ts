@@ -27,6 +27,10 @@ export enum ChatEvent {
   USERTYPING = 'userTyping',
   USERSTOPTYPING = 'userStopTyping',
   STOPTYPING = 'stopTyping',
+  ONLINE = 'online',
+  USERONLINE = 'user_online',
+  LEAVECHAT = 'leavechat',
+ USERUPDATESTATUS='userStatusUpdate'
 }
 
 export interface payload extends JwtPayload {

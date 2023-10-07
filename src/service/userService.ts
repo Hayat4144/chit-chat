@@ -1,3 +1,4 @@
+import { statusModel } from '@models/statusModal';
 import UserModel from '@models/userModal';
 import { Types } from 'mongoose';
 
@@ -39,6 +40,34 @@ class UserService {
       { $sort: { firstName: -1 } },
     ]);
     return users;
+  }
+
+  async createOrupdateUserStatus(userId: Types.ObjectId,online:boolean) {
+    const lastSeenExist = await statusModel.findOne({ user: userId });
+    if (!lastSeenExist) {
+      const lastSeen = new statusModel({
+        user: userId,
+      });
+      const saveLastSeen = await lastSeen.save();
+      const updatelastseen = this.updatelastseen(saveLastSeen.id,online);
+      return updatelastseen;
+    }
+    const updatelastseen = this.updatelastseen(lastSeenExist.id,online);
+    return updatelastseen;
+  }
+
+  async updatelastseen(id: Types.ObjectId,status:boolean) {
+    const updateStatus = await statusModel.findByIdAndUpdate(
+      id,
+      { lastSeen: Date.now() ,online:status},
+      { new: true },
+    );
+    return updateStatus;
+  }
+
+  async getUserstatus(userId:Types.ObjectId){
+    const status = await statusModel.findOne({user:userId})
+    return status;
   }
 }
 
