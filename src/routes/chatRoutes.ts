@@ -10,14 +10,24 @@ import RecentChatuser from '@controller/chat/RecentChatuser';
 import RemoveMemebersToGroupChat from '@controller/chat/Removemebers';
 import SearchUser from '@controller/chat/SearchUser';
 import UpdateGroupName from '@controller/chat/UpdateGroupName';
+import Attachment from '@controller/chat/attachment/attachement';
 import Chats from '@controller/chat/chats';
 import authMiddleware from '@middlewares/authMiddleware';
 import express from 'express';
+import multer from 'multer';
 const chatRoutes = express.Router();
+
+var upload = multer();
 
 chatRoutes.post('/api/v1/chat/create/message', authMiddleware, Message);
 chatRoutes.post('/api/v1/create/group/chat', authMiddleware, CreategroupChat);
 chatRoutes.get('/api/v1/recent/chat/members', authMiddleware, RecentChatuser);
+chatRoutes.post(
+  '/api/upload',
+  authMiddleware,
+  upload.single('images'),
+  Attachment,
+);
 chatRoutes.get(
   '/api/v1/createorget/chat/:userId',
   authMiddleware,

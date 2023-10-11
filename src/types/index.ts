@@ -30,7 +30,7 @@ export enum ChatEvent {
   ONLINE = 'online',
   USERONLINE = 'user_online',
   LEAVECHAT = 'leavechat',
- USERUPDATESTATUS='userStatusUpdate'
+  USERUPDATESTATUS = 'userStatusUpdate',
 }
 
 export interface payload extends JwtPayload {
@@ -49,4 +49,9 @@ export enum httpStatusCode {
   FORBIDDEN = 403,
   NOT_FOUND = 404,
   INTERNAL_SERVER_ERROR = 500,
+}
+
+export interface Resolveresponse {
+  url: string;
+  public_id: string;
 }

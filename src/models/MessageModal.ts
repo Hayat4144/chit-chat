@@ -7,13 +7,16 @@ enum MessageType {
   VIDEO = 'video',
 }
 
-interface IPayload extends Document {
+interface IPayload {
   type: MessageType;
   content: string;
   url?: {
-    path: string;
-    publicId: string;
-    preview?: string;
+    file_url: string;
+    public_id: string;
+    preview?: null | {
+      url: string;
+      public_id: string;
+    };
   };
 }
 const PayloadSchema = new Schema<IPayload>({
@@ -27,9 +30,12 @@ const PayloadSchema = new Schema<IPayload>({
     required: true,
   },
   url: {
-    path: String,
-    publicId: String,
-    preview: String,
+    file_url: String,
+    public_id: String,
+    preview: {
+      url: String,
+      public_id: String,
+    },
   },
 });
 

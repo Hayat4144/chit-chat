@@ -13,7 +13,10 @@ import { Server } from 'socket.io';
 import { initilizeSocketIo } from 'Sockets';
 import { verifyToken } from '@utils/jwt';
 import { httpStatusCode } from './types';
+import path from 'path';
+import { createReadStream, read } from 'fs';
 
+dotenv.config();
 const app = express();
 const http = createServer(app);
 const io = new Server(http, {
@@ -22,7 +25,7 @@ const io = new Server(http, {
     credentials: true,
   },
 });
-app.set('io',io)
+app.set('io', io);
 
 io.use(async (socket, next) => {
   try {
@@ -50,7 +53,6 @@ io.use(async (socket, next) => {
 initilizeSocketIo(io);
 
 CloudinaryConfiguration();
-dotenv.config();
 
 app.use(
   cors({
@@ -63,6 +65,24 @@ app.use(
   }),
 );
 const port = process.env.PORT || 8000;
+const dir = path.join(process.cwd(), 'uploads');
+
+app.get('/images/:filename', (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(dir, 'images', filename);
+  const readStream = createReadStream(filePath);
+  readStream.on('error', (error) => {
+    if ((error as any).code === 'ENOENT') {
+      res.status(404).send('File not found');
+    } else {
+      res.status(500).send('Internal Server Error');
+    }
+  });
+  res.setHeader('Content-Disposition', `inline; filename=${filename}`);
+  readStream.on('data', (chunk) => res.write(chunk));
+  readStream.on('end', () => res.send());
+});
+
 app.use(express.json());
 app.use(authRouter);
 app.use(userRouter);
