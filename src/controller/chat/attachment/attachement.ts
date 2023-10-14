@@ -55,6 +55,7 @@ const messageService = new MessageService();
 const Attachment = asyncHandler(async (req: Request, res: Response) => {
   const file = req.file;
   const { chatId, isGroupchat, recieverId, message } = req.body;
+  console.log(req.headers);
   if (!file) {
     return res
       .status(httpStatusCode.BAD_REQUEST)
@@ -79,9 +80,9 @@ const Attachment = asyncHandler(async (req: Request, res: Response) => {
   const data = {
     sender: req.user_id,
     payload: {
-      content: message,
       type,
       url: {
+        content: message,
         file_url: uploadMedia.image_response.url,
         public_id: uploadMedia.image_response.public_id,
         preview: {

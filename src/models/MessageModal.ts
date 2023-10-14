@@ -27,10 +27,10 @@ const PayloadSchema = new Schema<IPayload>({
   },
   content: {
     type: String,
-    required: true,
   },
   url: {
     file_url: String,
+    content: String,
     public_id: String,
     preview: {
       url: String,

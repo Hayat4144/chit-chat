@@ -15,7 +15,7 @@ export enum ChatEnum {
   USERSTOPTYPING = 'userStopTyping',
   STOPTYPING = 'stopTyping',
   LEAVECHAT = 'leavechat',
-  USERUPDATESTATUS='userStatusUpdate'
+  USERUPDATESTATUS = 'userStatusUpdate',
 }
 
 enum MessageType {
@@ -24,14 +24,17 @@ enum MessageType {
   GIF = 'gif',
   VIDEO = 'video',
 }
-
 interface IPayload {
   type: MessageType;
   content: string;
   url?: {
-    path: string;
-    publicId: string;
-    preview?: string;
+    file_url: string;
+    content: string;
+    public_id: string;
+    preview?: {
+      url: string;
+      public_id: string;
+    };
   };
 }
 

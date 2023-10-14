@@ -3,7 +3,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import Chatheader from './Chatheader';
 import Chatbody from './Chatbody';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Icons } from '../Icons';
 import { ChatEnum, IChat, Message } from '@/types';
 import { useParams } from 'next/navigation';
@@ -15,6 +15,14 @@ import sendMessage from '@/service/sendMessage';
 import { useSocket } from '@/context/SocketProvider';
 import CreateGroupMessage from '@/service/CreateGroupMessage';
 import EmojiPicker from './EmojiPicker';
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip';
+import AttachmentPreviewModal from './AttachmentPreviewModal';
+import { cn } from '@/lib/utils';
 
 interface ChatContainerProps {
   chat: IChat[];
@@ -27,6 +35,14 @@ interface userStatus {
   online: boolean;
 }
 
+interface uploadedImages {
+  image_preview: {
+    url: string | ArrayBuffer;
+    id: string;
+  };
+  image_as_file: File;
+}
+
 export default function ChatContainer({ chat }: ChatContainerProps) {
   const { id } = useParams();
   const [isFetched, toggleFetch] = useState<boolean>(false);
@@ -35,6 +51,10 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
   const [inputValue, setinputValue] = useState<string>('');
   const [isTyping, setisTyping] = useState<boolean>(false);
   const [status, setstatus] = useState<userStatus | null>(null);
+  const [attchementloading, setattchementloading] = useState<boolean>(false);
+  const [uploadedImages, setuploadedImages] = useState<uploadedImages[]>([]);
+  const [attachmentPreviewModal, setAttachmentPreviewModal] =
+    useState<boolean>(false);
 
   const { socket, isConnected } = useSocket();
   const queryClient = useQueryClient();
@@ -50,7 +70,7 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
     socket.emit(ChatEnum.JOINCHAT, id);
 
     socket.on(ChatEnum.USERUPDATESTATUS, (status) => {
-      console.log(status)
+      console.log(status);
       setstatus(status);
     });
 
@@ -109,11 +129,11 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setinputValue(e.target.value);
-    if(e.target.value.length < 1){
+    if (e.target.value.length < 1) {
       socket.emit(ChatEnum.STOPTYPING, {
-      chatId: id as string,
-      userId: session.data.user.id,
-    });
+        chatId: id as string,
+        userId: session.data.user.id,
+      });
     }
   };
 
@@ -165,17 +185,96 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
     }
   };
 
+  const fileChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAttachmentPreviewModal(true);
+    e.preventDefault();
+    const file = e.target.files[0];
+
+    if (file) {
+      const filereader = new FileReader();
+
+      filereader.onloadstart = () => {
+        console.log('loading started...');
+        setattchementloading(true);
+      };
+
+      filereader.onloadend = () => {
+        console.log('loading completed...');
+        setattchementloading(false);
+      };
+
+      filereader.onload = (event) => {
+        // Access the loaded file data using event.target.result
+        const fileData = event.target.result;
+        setuploadedImages((prevState) => [
+          ...prevState,
+          {
+            image_as_file: file,
+            image_preview: { url: fileData, id: Date.now().toString() },
+          },
+        ]);
+      };
+
+      // Initiate reading the file as a data URL
+      filereader.readAsDataURL(file);
+    }
+  };
+
   const addEmoji = (value: any) => {
     setinputValue((prevState) => prevState + value.native);
   };
+
+  const updateMessage = (data: Message) => {
+    setmessages((prevState) => [...prevState, data]);
+  };
   return (
     <Fragment>
+      {attachmentPreviewModal ? (
+        <AttachmentPreviewModal
+          isImageloaded={attchementloading}
+          data={uploadedImages}
+          setmessages={updateMessage}
+          isGroupchat={chat[0].isGroupchat}
+          setModalOpen={setAttachmentPreviewModal}
+        />
+      ) : null}
       <Chatheader chat={chat} isTyping={isTyping} status={status} />
       <Chatbody isLoading={result.isLoading} messages={messages} />
       <footer className="bg-background border-t sticky bottom-0 z-30 flex items-center h-20 py-3 px-2">
         <form onSubmit={submitHandler} className="flex-1">
           <div className="flex items-center space-x-2">
-            <EmojiPicker addEmoji={addEmoji} />
+            <div className="flex items-center space-x-2">
+              <EmojiPicker addEmoji={addEmoji} />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <input
+                        onChange={fileChangeHandler}
+                        type="file"
+                        className="hidden"
+                        id="attachment"
+                        multiple
+                        name="images"
+                        accept="image/*, video/*,.doc,.docx,application/msword,
+                        application/vnd.openxmlformats-officedocument.wordprocessingml.document
+                        ,.pdf
+                        "
+                      />
+                      <label
+                        htmlFor="attachment"
+                        className={cn(
+                          buttonVariants({ variant: 'ghost', size: 'icon' }),
+                          'rounded-full h-10 w-10 cursor-pointer',
+                        )}
+                      >
+                        <Icons.add size={17} />
+                      </label>
+                    </div>
+                  </TooltipTrigger>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <Input
               disabled={!isConnected}
               placeholder="Type your message..."

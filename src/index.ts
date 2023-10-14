@@ -13,8 +13,7 @@ import { Server } from 'socket.io';
 import { initilizeSocketIo } from 'Sockets';
 import { verifyToken } from '@utils/jwt';
 import { httpStatusCode } from './types';
-import path from 'path';
-import { createReadStream, read } from 'fs';
+import staticFileRouter from 'routes/staticfileRoutes';
 
 dotenv.config();
 const app = express();
@@ -65,28 +64,11 @@ app.use(
   }),
 );
 const port = process.env.PORT || 8000;
-const dir = path.join(process.cwd(), 'uploads');
-
-app.get('/images/:filename', (req, res) => {
-  const { filename } = req.params;
-  const filePath = path.join(dir, 'images', filename);
-  const readStream = createReadStream(filePath);
-  readStream.on('error', (error) => {
-    if ((error as any).code === 'ENOENT') {
-      res.status(404).send('File not found');
-    } else {
-      res.status(500).send('Internal Server Error');
-    }
-  });
-  res.setHeader('Content-Disposition', `inline; filename=${filename}`);
-  readStream.on('data', (chunk) => res.write(chunk));
-  readStream.on('end', () => res.send());
-});
-
 app.use(express.json());
 app.use(authRouter);
 app.use(userRouter);
 app.use(chatRoutes);
+app.use(staticFileRouter);
 app.use(ErrorMiddleware);
 
 ConnectDatabase().then(() => {
