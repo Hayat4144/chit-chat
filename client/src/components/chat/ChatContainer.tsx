@@ -19,7 +19,6 @@ import {
   Tooltip,
   TooltipProvider,
   TooltipTrigger,
-  TooltipContent,
 } from '@/components/ui/tooltip';
 import AttachmentPreviewModal from './AttachmentPreviewModal';
 import { cn } from '@/lib/utils';
@@ -186,46 +185,44 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
   };
 
   const fileChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAttachmentPreviewModal(true);
     e.preventDefault();
-    const file = e.target.files[0];
+    setAttachmentPreviewModal(true);
+    const files = e.target.files;
 
-    if (file) {
-      const filereader = new FileReader();
+    Array.from(files).forEach((file) => {
+      const fileReader = new FileReader();
 
-      filereader.onloadstart = () => {
-        console.log('loading started...');
+      fileReader.onloadstart = () => {
         setattchementloading(true);
       };
 
-      filereader.onloadend = () => {
-        console.log('loading completed...');
+      fileReader.onloadend = () => {
         setattchementloading(false);
       };
 
-      filereader.onload = (event) => {
-        // Access the loaded file data using event.target.result
-        const fileData = event.target.result;
+      fileReader.onload = (event) => {
         setuploadedImages((prevState) => [
           ...prevState,
           {
             image_as_file: file,
-            image_preview: { url: fileData, id: Date.now().toString() },
+            image_preview: {
+              url: event.target.result,
+              id: Date.now().toString(),
+            },
           },
         ]);
       };
-
-      // Initiate reading the file as a data URL
-      filereader.readAsDataURL(file);
-    }
+      fileReader.readAsDataURL(file);
+      return fileReader;
+    });
   };
 
   const addEmoji = (value: any) => {
     setinputValue((prevState) => prevState + value.native);
   };
 
-  const updateMessage = (data: Message) => {
-    setmessages((prevState) => [...prevState, data]);
+  const updateMessage = (data: Message[]) => {
+    setmessages((prevState) => [...prevState, ...data]);
   };
   return (
     <Fragment>
@@ -233,6 +230,7 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
         <AttachmentPreviewModal
           isImageloaded={attchementloading}
           data={uploadedImages}
+          setuploadImages={setuploadedImages}
           setmessages={updateMessage}
           isGroupchat={chat[0].isGroupchat}
           setModalOpen={setAttachmentPreviewModal}

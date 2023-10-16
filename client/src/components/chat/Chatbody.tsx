@@ -170,6 +170,39 @@ const MessageContent = ({
           </div>
         </Fragment>
       );
+    case 'application':
+      return (
+        <Fragment>
+          <div
+            className={cn(
+              'w-[300px] rounded-md h-[250px] relative',
+              message.sender === session.data.user.id
+                ? ' bg-primary text-primary-foreground'
+                : 'bg-muted',
+            )}
+          >
+            <img
+              alt="Photo by Drew Beamer"
+              src={`http://localhost:8000/${message.payload.url.preview.url}`}
+              className="rounded-md h-full w-full"
+              loading="lazy"
+            />
+            <div className="bg-accent rounded-b-md absolute px-2 bottom-0 py-3 w-full ">
+              <Button variant="link" asChild>
+                <a
+                  href={`http://localhost:8000/downloads?filename=/${message.payload.url.file_url}`}
+                  download
+                >
+                  Download the file
+                </a>
+              </Button>
+            </div>
+            {message.payload.url.content ? (
+              <p className="px-2 py-1">{message.payload.url.content}</p>
+            ) : null}
+          </div>
+        </Fragment>
+      );
     default:
       return;
   }
@@ -219,8 +252,17 @@ const ImageModal = ({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent align="start" className="flex flex-col px-1 ">
-                  <Button className="w-full justify-start py-1" variant="ghost">
-                    Download
+                  <Button
+                    className="w-full justify-start py-1"
+                    variant="ghost"
+                    asChild
+                  >
+                    <a
+                      href={`http://localhost:8000/downloads?filename=/${imageUrl}`}
+                      download
+                    >
+                      Download
+                    </a>
                   </Button>
                   <Button className="w-full justify-start py-1" variant="ghost">
                     Delete

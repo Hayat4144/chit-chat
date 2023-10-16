@@ -23,6 +23,8 @@ enum MessageType {
   IMAGE = 'image',
   GIF = 'gif',
   VIDEO = 'video',
+  APPLICATION = 'application',
+  PDF = 'pdf',
 }
 interface IPayload {
   type: MessageType;

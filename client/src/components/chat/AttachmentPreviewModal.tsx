@@ -15,6 +15,7 @@ import uploadAttachment from '@/service/uploadAttachement';
 import { useSession } from 'next-auth/react';
 import { toast } from '../ui/use-toast';
 import { Message } from '@/types';
+import AttachementLoading from './AttachementLoading';
 
 interface uploadedImages {
   image_preview: {
@@ -29,12 +30,14 @@ interface AttachmentPreviewModalProps {
   setModalOpen: (value: boolean) => void;
   isGroupchat: boolean;
   isImageloaded: boolean;
-  setmessages: (data: Message) => void;
+  setmessages: (data: Message[]) => void;
+  setuploadImages: (dat: []) => void;
 }
 
 export default function AttachmentPreviewModal({
   data,
   isImageloaded,
+  setuploadImages,
   isGroupchat,
   setModalOpen,
   setmessages,
@@ -44,6 +47,7 @@ export default function AttachmentPreviewModal({
   const [messgevalue, setmessgevalue] = useState('');
   const { id } = useParams();
   const session = useSession();
+  const [isLoading, setisLoading] = useState(false);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -53,7 +57,11 @@ export default function AttachmentPreviewModal({
   }, [data]);
 
   const onSubmit = async () => {
-    if (images.length < 1) return;
+    setisLoading(true);
+    if (images.length < 1) {
+      setisLoading(false);
+      return;
+    }
     const formData = new FormData();
     formData.append('images', images[0].image_as_file);
     formData.append('chatId', id as string);
@@ -63,11 +71,15 @@ export default function AttachmentPreviewModal({
       session.data.user.token,
       formData,
     );
+    setisLoading(false);
+    setuploadImages([]);
     if (error) {
       toast({ title: error, variant: 'destructive' });
       return;
     }
-    setmessages(data);
+    if (!isGroupchat) {
+      setmessages(data);
+    }
     setModalOpen(false);
   };
 
@@ -90,13 +102,15 @@ export default function AttachmentPreviewModal({
         </TooltipProvider>
         <h1 className="text-xl">Attachment preview</h1>
       </div>
-      {!isImageloaded && images.length > 0 ? (
+      {isImageloaded ? (
+        <AttachementLoading />
+      ) : !isImageloaded && images.length > 0 ? (
         <Fragment>
           <div className="px-10 my-2 flex items-center flex-1">
             <AspectRatio ratio={16 / 8} className="my-0">
               <Image
                 src={images[current_imageIndex].image_preview.url as string}
-                alt="pic"
+                alt="no image preview is available"
                 fill
                 className="rounded-md object-fill "
               />
@@ -110,7 +124,7 @@ export default function AttachmentPreviewModal({
                 key={item.image_preview.id}
                 height={80}
                 onClick={() => setcurrent_imageIndex(index)}
-                alt="preview_image"
+                alt="pic"
                 className={`rounded-md object-cover cursor-pointer ${
                   index === current_imageIndex
                     ? 'border-2 border-accent-foreground'
@@ -133,7 +147,11 @@ export default function AttachmentPreviewModal({
                 onChange={(e) => setmessgevalue(e.target.value)}
               />
               <Button className="w-10 h-10" size="icon" variant="secondary">
-                <Icons.send size={18} />
+                {isLoading ? (
+                  <Icons.loader size={18} className="animate-spin" />
+                ) : (
+                  <Icons.send size={18} />
+                )}
               </Button>
             </form>
           </div>

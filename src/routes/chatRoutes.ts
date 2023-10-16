@@ -25,7 +25,7 @@ chatRoutes.get('/api/v1/recent/chat/members', authMiddleware, RecentChatuser);
 chatRoutes.post(
   '/api/upload',
   authMiddleware,
-  upload.single('images'),
+  upload.array('images'),
   Attachment,
 );
 chatRoutes.get(

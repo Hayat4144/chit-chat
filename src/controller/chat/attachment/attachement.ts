@@ -53,64 +53,72 @@ folderpathFactory.register('text/plain', 'uploads/documents');
 const messageService = new MessageService();
 
 const Attachment = asyncHandler(async (req: Request, res: Response) => {
-  const file = req.file;
+  const files: Express.Multer.File[] = req.files as Express.Multer.File[]; // Get array of files from request
   const { chatId, isGroupchat, recieverId, message } = req.body;
-  console.log(req.headers);
-  if (!file) {
+
+  if (!files || !files.length) {
     return res
       .status(httpStatusCode.BAD_REQUEST)
-      .send({ error: 'Empty file detected.' });
+      .send({ error: 'No files detected.' });
   }
+
   let storage: Storage;
   if (production) {
     storage = new cloudinaryStorage();
   } else {
     storage = new localStorage(folderpathFactory);
   }
-  const attachment: Attachment = {
-    user_id: req.user_id,
-    local_path: file,
-  };
-  const uploadRequest = new uploadService(storage, scaler, preview_factory);
-  const uploadMedia = await uploadRequest.uploadMedia(
-    attachment,
-    file.mimetype,
-  );
-  const [type] = file.mimetype.split('/');
-  const data = {
-    sender: req.user_id,
-    payload: {
-      type,
-      url: {
-        content: message,
-        file_url: uploadMedia.image_response.url,
-        public_id: uploadMedia.image_response.public_id,
-        preview: {
-          url: uploadMedia.preview_image?.url,
-          public_id: uploadMedia.preview_image?.public_id,
+
+  const attachments: Attachment[] = files.map((file: Express.Multer.File) => {
+    return {
+      user_id: req.user_id,
+      local_path: file, // Assuming local_path is the property where you store the file information
+    };
+  });
+
+  const uploadRequests = attachments.map(async (attachment: Attachment) => {
+    const uploadRequest = new uploadService(storage, scaler, preview_factory);
+    const uploadMedia = await uploadRequest.uploadMedia(
+      attachment,
+      attachment.local_path.mimetype,
+    );
+
+    // Rest of your logic for processing the uploaded media
+    const [type] = attachment.local_path.mimetype.split('/');
+    const data = {
+      sender: req.user_id,
+      payload: {
+        type,
+        url: {
+          content: message,
+          file_url: uploadMedia.image_response.url,
+          public_id: uploadMedia.image_response.public_id,
+          preview: {
+            url: uploadMedia.preview_image?.url,
+            public_id: uploadMedia.preview_image?.public_id,
+          },
         },
       },
-    },
-  };
-  if (isGroupchat) {
-    const createNewMessage = await messageService.GroupMessage(
-      chatId,
-      data,
-      req,
-    );
-    return res.status(httpStatusCode.OK).send({ data: createNewMessage });
-  }
-  const members: Types.ObjectId[] = [
-    new mongoose.Types.ObjectId(req.user_id),
-    new mongoose.Types.ObjectId(recieverId),
-  ];
-  const privateMessage = await messageService.PrivateMessage(
-    members,
-    data,
-    false,
-    req,
-  );
-  return res.status(httpStatusCode.OK).send({ data: privateMessage });
+    };
+
+    if (isGroupchat) {
+      const createNewMessage = await messageService.GroupMessage(chatId, data, req);
+      return createNewMessage;
+    }
+
+    const members: Types.ObjectId[] = [
+      new mongoose.Types.ObjectId(req.user_id),
+      new mongoose.Types.ObjectId(recieverId),
+    ];
+
+    const privateMessage = await messageService.PrivateMessage(members, data, false, req);
+    return privateMessage;
+  });
+
+  // Wait for all uploads to complete before proceeding
+  const results = await Promise.all(uploadRequests);
+
+  res.status(httpStatusCode.OK).send({ data: results });
 });
 
 export default Attachment;
