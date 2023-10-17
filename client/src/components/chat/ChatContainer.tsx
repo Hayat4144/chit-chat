@@ -74,6 +74,7 @@ export default function ChatContainer({ chat }: ChatContainerProps) {
     });
 
     socket.on(ChatEnum.RECEIVEDMESSAGE, (message) => {
+    console.log(message)
       setmessages((prevState) => [...prevState, message]);
     });
 

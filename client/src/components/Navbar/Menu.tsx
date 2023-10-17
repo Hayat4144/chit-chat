@@ -1,3 +1,4 @@
+'use client'
 import React, { Fragment } from 'react';
 import {
   Popover,
@@ -15,8 +16,14 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import NewGroup from '../chat/NewGroup';
+import { signOut } from 'next-auth/react';
+import { toast } from '../ui/use-toast';
 
 export default function Menu() {
+const logout = ()=>{
+    signOut()
+    toast({title:'you are logout successfully.'})
+}
   return (
     <Fragment>
       <Popover>
@@ -38,7 +45,8 @@ export default function Menu() {
                   <Icons.settings size={17} />
                   <span>settings</span>
                 </CommandItem>
-                <CommandItem className="flex items-center space-x-2">
+                <CommandItem className="flex items-center space-x-2 cursor-pointer"
+                onSelect={()=>logout()}>
                   <Icons.logout size={17} />
                   <span>Logout</span>
                 </CommandItem>

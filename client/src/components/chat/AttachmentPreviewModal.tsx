@@ -16,6 +16,7 @@ import { useSession } from 'next-auth/react';
 import { toast } from '../ui/use-toast';
 import { Message } from '@/types';
 import AttachementLoading from './AttachementLoading';
+import { format } from 'path';
 
 interface uploadedImages {
   image_preview: {
@@ -63,7 +64,7 @@ export default function AttachmentPreviewModal({
       return;
     }
     const formData = new FormData();
-    formData.append('images', images[0].image_as_file);
+    images.map(image=>formData.append('images',image.image_as_file))
     formData.append('chatId', id as string);
     formData.append('isGroupchat', isGroupchat as any);
     formData.append('message', messgevalue);
@@ -94,7 +95,10 @@ export default function AttachmentPreviewModal({
                 variant="ghost"
                 size="icon"
               >
-                <Icons.close size={17} onClick={() => setModalOpen(false)} />
+                <Icons.close size={17} onClick={() =>{
+    setuploadImages([]);
+    setModalOpen(false)
+                }} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Go Back</TooltipContent>

@@ -62,6 +62,7 @@ const Attachment = asyncHandler(async (req: Request, res: Response) => {
       .send({ error: 'No files detected.' });
   }
 
+
   let storage: Storage;
   if (production) {
     storage = new cloudinaryStorage();
@@ -75,7 +76,6 @@ const Attachment = asyncHandler(async (req: Request, res: Response) => {
       local_path: file, // Assuming local_path is the property where you store the file information
     };
   });
-
   const uploadRequests = attachments.map(async (attachment: Attachment) => {
     const uploadRequest = new uploadService(storage, scaler, preview_factory);
     const uploadMedia = await uploadRequest.uploadMedia(
@@ -102,7 +102,11 @@ const Attachment = asyncHandler(async (req: Request, res: Response) => {
     };
 
     if (isGroupchat) {
-      const createNewMessage = await messageService.GroupMessage(chatId, data, req);
+      const createNewMessage = await messageService.GroupMessage(
+        chatId,
+        data,
+        req,
+      );
       return createNewMessage;
     }
 
@@ -111,14 +115,29 @@ const Attachment = asyncHandler(async (req: Request, res: Response) => {
       new mongoose.Types.ObjectId(recieverId),
     ];
 
-    const privateMessage = await messageService.PrivateMessage(members, data, false, req);
+    const privateMessage = await messageService.PrivateMessage(
+      members,
+      data,
+      false,
+      req,
+    );
     return privateMessage;
   });
 
   // Wait for all uploads to complete before proceeding
-  const results = await Promise.all(uploadRequests);
+  const results = await Promise.allSettled(uploadRequests);
+  let data = [] as any;
+  results.map((result) => {
+    if (result.status === 'fulfilled') {
+      data.push(result.value as any);
+    } else {
+      return res
+        .status(httpStatusCode.BAD_REQUEST)
+        .json({ error: result.reason });
+    }
+  });
 
-  res.status(httpStatusCode.OK).send({ data: results });
+  return res.status(httpStatusCode.OK).send({ data });
 });
 
 export default Attachment;

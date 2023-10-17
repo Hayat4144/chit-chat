@@ -1,7 +1,6 @@
 import AsideNavbar from '@/components/Navbar/AsideNavbar';
 import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
-import Image from 'next/image';
 import { redirect } from 'next/navigation';
 
 export default async function Home() {
@@ -13,14 +12,7 @@ export default async function Home() {
     <main className="flex">
       <AsideNavbar className="h-screen fixed w-full md:border-r md:w-[35%] lg:w-[30%]" />
       <section className="hidden md:flex md:flex-col md:flex-grow h-full md:ml-[35%] lg:ml-[30%]">
-        <h1 className="text-7xl font-medium">This is chat box.</h1>
-        <Image
-          src="http://localhost:8000/images/image.jpeg"
-          width={400}
-          height={400}
-          alt="pic"
-        />
-        <video src="http://localhost:8000/images/c6d96d11-be6e-402e-9073-8f603f5bd280-Sample-MP4-Video-File-Download.mp4"></video>
+        <h1 className="my-2 md:my-5 mx-2 md:mx-5 text-3xl font-medium">Unlease the joy of Conversations! Your Chit-Chat Oasis Awaits</h1>
       </section>
     </main>
   );
